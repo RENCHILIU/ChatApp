@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct ChatBubble: View {
     let message: Message
     
@@ -28,12 +26,19 @@ struct ChatBubble: View {
         .padding(.vertical, 5)
     }
     
+    @ViewBuilder
     private var messageContent: some View {
-        Text(message.content)
-            .padding()
-            .background(backgroundColor(for: message.role))
-            .foregroundColor(.white)
-            .cornerRadius(10)
+        if message.content.starts(with: "[CARD]"),
+           let jsonData = message.content.dropFirst(6).data(using: .utf8),
+           let card = try? JSONDecoder().decode(ChatResponseContent.CardInfo.self, from: jsonData) {
+            CreditCardView(card: card)
+        } else {
+            Text(message.content)
+                .padding()
+                .background(backgroundColor(for: message.role))
+                .foregroundColor(.white)
+                .cornerRadius(10)
+        }
     }
     
     @ViewBuilder
@@ -52,7 +57,6 @@ struct ChatBubble: View {
             .frame(width: 40, height: 40)
             .clipShape(Circle())
     }
-
     
     func backgroundColor(for role: Role) -> Color {
         role == .user ? Color.blue : Color.gray
@@ -60,7 +64,7 @@ struct ChatBubble: View {
 }
 
 
-#Preview {
-    ChatBubble(message: Message(content: "hello", role: .system))
-    ChatBubble(message: Message(content: "hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello", role: .user))
-}
+//#Preview {
+//    ChatBubble(message: Message(content: "hello", role: .system))
+//    ChatBubble(message: Message(content: "hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello", role: .user))
+//}
